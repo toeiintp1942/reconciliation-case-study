@@ -3,7 +3,7 @@
 > Internal web app for a Thai F&B chain (150+ branches) that automates bank reconciliation, platform settlements, tax documents and mall billing.
 > *Source code and company data are private. Screenshots use masked or sample data.*
 
-### ▶ [Try the interactive demo](https://toeiintp1942.github.io/reconciliation-case-study/demo/)
+### ▶ [Try the interactive demo](https://toeiintp1942.github.io/reconciliation-case-study/)
 Click through every menu (41 screens) with mock data — buttons are disabled.
 
 **Role:** Sole designer & builder — requirements, accounting logic, data model, testing, deployment, security, backup
@@ -72,7 +72,7 @@ All of this was done by hand in Excel. It was slow, hard to audit, and errors we
 
 ## Screenshots (mock data)
 
-![Bank Statement](images/overview.png)
-![Dashboard](images/dashboard.png)
-![Mall Billing](images/mall-billing.png)
-![WHT cover](images/wht.png)
+![Bank Statement](overview.png)
+![Dashboard](dashboard.png)
+![Mall Billing](mall-billing.png)
+![WHT cover](wht.png)
