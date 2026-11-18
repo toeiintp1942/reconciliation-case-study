@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reconciliation System · Interactive Demo</title>
+<style>
+:root{--ink:#0F172A;--ink2:#1E293B;--muted:#64748B;--mutedLite:#94A3B8;--line:#E2E8F0;--lineLite:#F1F5F9;--bg:#F8FAFC;--card:#fff;
+--brand:#10B981;--brand-dark:#059669;--brand-tint:#D1FAE5;--blue:#0EA5E9;--blue-tint:#E0F2FE;--amber:#F59E0B;--amber-tint:#FEF3C7;
+--red:#DC2626;--red-tint:#FEE2E2;--purple:#8B5CF6;--purple-tint:#EDE9FE;--r:10px;--rl:14px;
+--font:'Inter','Segoe UI','Noto Sans Thai',-apple-system,Arial,sans-serif;--mono:'JetBrains Mono',Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0}body{font:13.5px/1.55 var(--font);color:var(--ink);background:var(--bg)}
+.app{display:grid;grid-template-columns:250px 1fr;grid-template-rows:56px 1fr;min-height:100vh;grid-template-areas:"side hdr" "side main"}
+.hdr{grid-area:hdr;position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 22px}
+.hdr h1{font-size:16px;margin:0;font-weight:700}.hdr .crumb{color:var(--muted);font-size:12.5px}
+.hdr .sp{flex:1}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.demo-pill{background:var(--amber-tint);color:#92400E}.icon-btn{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;background:#fff;cursor:pointer;position:relative}
+.icon-btn svg{width:17px;height:17px;stroke:var(--ink2);fill:none;stroke-width:1.8}.dot{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;border-radius:999px;padding:0 5px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px}
+.ham{display:none}
+.side{grid-area:side;background:#fff;border-right:1px solid var(--line);padding:14px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 14px;border-bottom:1px solid var(--lineLite);margin-bottom:10px}
+.mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#0F172A,#334155);display:grid;place-items:center}
+.mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
+.brand b{display:block;font-size:14px}.brand small{color:var(--muted);font-size:11.5px}
+.grp{margin-top:8px}.gh{display:flex;align-items:center;gap:9px;padding:7px 10px;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border-radius:8px}
+.gh:hover{background:var(--lineLite)}.gh .chev{margin-left:auto;transition:.15s}.grp.closed .chev{transform:rotate(-90deg)}.grp.closed .items{display:none}
+.it{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 14px;border-radius:8px;cursor:pointer;color:var(--ink2);font-size:13px}
+.it:hover{background:var(--lineLite)}.it.on{background:var(--brand-tint);color:#065F46;font-weight:600}
+.it svg,.gh svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex:0 0 auto}
+.main{grid-area:main;padding:22px;max-width:1280px;width:100%;min-width:0}.bar .inp{max-width:100%}
+.lead{background:#fff;border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:var(--r);padding:11px 14px;margin-bottom:16px;color:var(--muted)}
+.lead b{color:var(--ink)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--rl);padding:18px;margin-bottom:16px}
+.card h3{margin:0 0 12px;font-size:14.5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--rl);padding:14px 16px}
+.kpi .l{color:var(--muted);font-size:12px}.kpi .v{font-size:21px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}.kpi .s{font-size:11.5px;color:var(--muted)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.inp,select.inp{border:1px solid var(--line);border-radius:9px;padding:7px 10px;font:inherit;background:#fff;color:var(--ink);min-width:0}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 13px;font:inherit;font-weight:600;cursor:pointer;color:var(--ink);display:inline-flex;gap:6px;align-items:center}
+.btn:hover{border-color:var(--mutedLite)}.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.sm{padding:4px 9px;font-size:12px}
+.tw{overflow:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:12.8px}th,td{padding:8px 10px;border-bottom:1px solid var(--lineLite);text-align:left;white-space:nowrap}
+th{background:var(--bg);color:var(--muted);font-weight:600;position:sticky;top:0}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr:hover td{background:#FAFCFE}.mono{font-family:var(--mono);font-size:12px}
+.chip{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600}
+.c-ok{background:#ECFDF5;color:#047857}.c-diff{background:var(--red-tint);color:#B91C1C}.c-warn{background:var(--amber-tint);color:#92400E}
+.c-info{background:var(--blue-tint);color:#0369A1}.c-pur{background:var(--purple-tint);color:#6D28D9}.c-grey{background:var(--lineLite);color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}.tab{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600;font-size:12.5px}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.drop{border:2px dashed var(--line);border-radius:var(--rl);padding:26px;text-align:center;color:var(--muted);background:#fff}
+.drop b{color:var(--ink)}.muted{color:var(--muted)}.small{font-size:12px}
+.mcard{border:1px solid var(--line);border-radius:var(--rl);padding:14px;background:#fff}
+.mcard .t{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.prog{height:6px;background:var(--lineLite);border-radius:9px;overflow:hidden;margin-top:8px}.prog i{display:block;height:100%;background:var(--brand)}
+.tog{width:36px;height:20px;border-radius:999px;background:var(--line);position:relative;display:inline-block;cursor:pointer;vertical-align:middle}
+.tog.on{background:var(--brand)}.tog::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}.tog.on::after{left:18px}
+.notice{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:flex;gap:12px}
+.notice .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;font-weight:700}
+.row{display:grid;grid-template-columns:170px 1fr;gap:8px 14px;align-items:center;margin:8px 0}.row .l{color:var(--muted);font-size:12.5px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:.2s;z-index:99;font-size:13px;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.chart svg{width:100%;height:auto;display:block}
+.slip{border:1px solid var(--line);border-radius:10px;padding:10px;background:linear-gradient(#fff,#F8FAFC);font-size:12px}
+.slip .amt{font-size:18px;font-weight:700}
+.sig{height:46px;border-bottom:1px dashed var(--mutedLite);display:flex;align-items:flex-end;justify-content:center;font-family:'Segoe Script','Brush Script MT',cursive;font-size:20px;color:#1E3A8A}
+.paper{background:#fff;border:1px solid var(--line);border-radius:6px;padding:22px 26px;box-shadow:0 6px 16px rgba(15,23,42,.06);font-size:12.5px}
+.paper h4{text-align:center;margin:0 0 10px;font-size:15px}
+.drawer-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:40}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.app{grid-template-columns:minmax(0,1fr);grid-template-areas:"hdr" "main"}.side{position:fixed;left:-270px;width:260px;z-index:50;transition:.2s}
+.side.open{left:0}.drawer-bg.open{display:block}.ham{display:grid}.grid2,.grid3{grid-template-columns:1fr}.main{padding:16px}.hdr{padding:0 16px}.hide-m{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side" id="side">
+  <div class="brand"><div class="mark"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+  <div><b>Recon System</b><small>Interactive demo · mock data</small></div></div>
+  <div id="nav"></div>
+</aside>
+<div class="drawer-bg" id="dbg" onclick="side(false)"></div>
+<header class="hdr">
+  <div class="icon-btn ham" onclick="side(true)"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+  <div><h1 id="ttl">Home</h1><div class="crumb" id="crumb"></div></div>
+  <div class="sp"></div>
+  <span class="pill demo-pill hide-m">Demo · actions disabled</span>
+  <div class="icon-btn" onclick="demo('Export queue: files appear here when ready')" title="Export queue"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot">2</span></div>
+  <div class="avatar" title="Demo Admin">DA</div>
+</header>
+<main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ───────── mock data (all fictional) ───────── */
+let seed=7;const R=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const pick=a=>a[Math.floor(R()*a.length)];const rint=(a,b)=>Math.floor(a+R()*(b-a+1));
+const f2=n=>Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const f0=n=>Number(n).toLocaleString('en-US');
+const BR=Array.from({length:12},(_,i)=>({code:'S'+String(101+i).padStart(4,'0'),name:'Store '+String(101+i).padStart(3,'0'),
+  area:pick(['Bangkok','Bangkok','Chiang Mai','Phuket','Khon Kaen']),mall:i%3===0}));
+const d=(i)=>`2026-10-${String(i).padStart(2,'0')}`;
+const chip=(t,c)=>`<span class="chip ${c}">${t}</span>`;
+const ST={OK:'c-ok',Diff:'c-diff','Select IV':'c-pur','Unknown branch':'c-warn','Prior month':'c-grey','Waiting platform':'c-info','No IV':'c-diff'};
+function table(cols,rows,max){return `<div class="tw" style="${max?`max-height:${max}px`:''}"><table><thead><tr>${cols.map(c=>`<th class="${c.n?'n':''}">${c.t}</th>`).join('')}</tr></thead><tbody>${
+ rows.map(r=>`<tr>${cols.map((c,i)=>`<td class="${c.n?'n':''} ${c.m?'mono':''}">${r[i]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+const kpis=a=>`<div class="kpis">${a.map(k=>`<div class="kpi"><div class="l">${k[0]}</div><div class="v" style="${k[3]?`color:${k[3]}`:''}">${k[1]}</div><div class="s">${k[2]||''}</div></div>`).join('')}</div>`;
+const B=(t,c='')=>`<button class="btn ${c}" onclick="demo()">${t}</button>`;
+const sel=(o)=>`<select class="inp">${o.map(x=>`<option>${x}</option>`).join('')}</select>`;
+const search=(p='Search…')=>`<input class="inp" placeholder="${p}" oninput="filt(this)" style="width:220px">`;
+const lead=(t)=>`<div class="lead">${t}</div>`;
+function filt(inp){const tb=inp.closest('.card')?.querySelector('tbody');if(!tb)return;const q=inp.value.toLowerCase();
+ tb.querySelectorAll('tr').forEach(tr=>tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none')}
+function tabs(id,names,fn){TABF[id]=fn;return `<div class="tabs" data-tabs="${id}">${names.map((n,i)=>`<span class="tab ${i?'':'on'}" onclick="tabGo(this,'${id}',${i})">${n}</span>`).join('')}</div><div id="${id}">${fn(0)}</div>`}
+const TABF={};function tabGo(el,id,i){el.parentNode.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',j===i));document.getElementById(id).innerHTML=TABF[id](i)}
+function lineChart(series,labels,colors,h=220){const W=760,H=h,p=34;const all=series.flat();const mx=Math.max(...all)*1.1;
+ const x=i=>p+i*(W-p*2)/(labels.length-1),y=v=>H-p-(v/mx)*(H-p*2);
+ let g='';for(let k=0;k<=4;k++){const yy=p+k*(H-p*2)/4;g+=`<line x1="${p}" x2="${W-p}" y1="${yy}" y2="${yy}" stroke="#F1F5F9"/><text x="4" y="${yy+4}" font-size="10" fill="#94A3B8">${f0(Math.round(mx*(1-k/4)/1000))}k</text>`}
+ labels.forEach((l,i)=>{if(i%3===0)g+=`<text x="${x(i)}" y="${H-10}" font-size="10" fill="#94A3B8" text-anchor="middle">${l}</text>`});
+ series.forEach((s,si)=>{g+=`<polyline fill="none" stroke="${colors[si]}" stroke-width="2.2" points="${s.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`});
+ return `<div class="chart"><svg viewBox="0 0 ${W} ${H}">${g}</svg></div>`}
+function barChart(vals,labels,color='#10B981',h=200){const W=760,H=h,p=30;const mx=Math.max(...vals)*1.1;const bw=(W-p*2)/vals.length;
+ let g='';vals.forEach((v,i)=>{const bh=(v/mx)*(H-p*2);g+=`<rect x="${p+i*bw+4}" y="${H-p-bh}" width="${bw-8}" height="${bh}" rx="4" fill="${color}"/><text x="${p+i*bw+bw/2}" y="${H-12}" font-size="10" fill="#94A3B8" text-anchor="middle">${labels[i]}</text>`});
+ return `<div class="chart"><svg viewBox="0 0 ${W} ${H}">${g}</svg></div>`}
+function donut(parts){let a=0,g='';const tot=parts.reduce((s,p)=>s+p[1],0);parts.forEach(p=>{const fr=p[1]/tot,L=2*Math.PI*60;
+ g+=`<circle r="60" cx="80" cy="80" fill="none" stroke="${p[2]}" stroke-width="22" stroke-dasharray="${fr*L} ${L}" stroke-dashoffset="${-a*L}" transform="rotate(-90 80 80)"/>`;a+=fr});
+ return `<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><svg width="160" height="160">${g}</svg><div>${parts.map(p=>`<div style="margin:4px 0"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${p[2]};margin-right:6px"></span>${p[0]} · <b>${f0(p[1])}</b> <span class="muted">(${(p[1]/tot*100).toFixed(1)}%)</span></div>`).join('')}</div></div>`}
+
+/* ───────── pages ───────── */
+const days=Array.from({length:31},(_,i)=>i+1);
+const sales=days.map(()=>rint(880,1180)*1000),ivx=sales.map(v=>v-rint(0,6)*1000);
+const P={};
+P.home=()=>lead('<b>Home</b> — announcements, closing-period reminders and shortcuts. Important notices pop up after login.')+
+ kpis([['Closing period','Oct 2026','Due 13 Nov 2026'],['Bank lines this month','13,611','Auto-matched 95.6%','#059669'],['Pending review','597','Diff · Select IV · Unknown branch','#B45309'],['Export queue','2 ready','Download from the bell']])+
+ `<div class="grid2"><div class="card"><h3>Announcements</h3>
+ <div class="notice"><div class="ic" style="background:var(--red-tint);color:#B91C1C">!</div><div><b>Month-end close · Oct 2026</b><div class="muted small">Upload bank statements and platform files by 13/11/2026</div></div></div>
+ <div class="notice"><div class="ic" style="background:var(--blue-tint);color:#0369A1">i</div><div><b>New: Mall Billing module</b><div class="muted small">Generate summary, receipt and sales report PDFs per mall contract</div></div></div>
+ <div class="notice"><div class="ic" style="background:var(--brand-tint);color:#047857">✓</div><div><b>Weekly encrypted backup</b><div class="muted small">Every Friday 19:00 · last run OK</div></div></div></div>
+ <div class="card"><h3>Shortcuts</h3><div class="grid2">${['Bank Statement','IVxGL vs POS','Grab','Mall Billing','WHT','Reports & Export'].map(s=>`<button class="btn" onclick="go('${{'Bank Statement':'bankstmt','IVxGL vs POS':'ivxgl','Grab':'grab','Mall Billing':'mallbill','WHT':'doc_wht','Reports & Export':'reports'}[s]}')">${s} →</button>`).join('')}</div></div></div>`;
+P.dashboard=()=>lead('<b>Dashboard</b> — month-at-a-glance reconciliation status across all channels.')+
+ kpis([['POS sales (Oct)',f0(sales.reduce((a,b)=>a+b))],['Invoiced (IVxGL)',f0(ivx.reduce((a,b)=>a+b))],['Matched to bank','95.6%','13,014 / 13,611','#059669'],['Not yet OK','597','with reason / needs review','#B91C1C']])+
+ `<div class="grid2"><div class="card"><h3>Bank lines by status</h3>${donut([['OK',13014,'#10B981'],['Prior month',294,'#94A3B8'],['Waiting platform',121,'#0EA5E9'],['Diff',82,'#DC2626'],['Unknown branch',58,'#F59E0B'],['Select IV',42,'#8B5CF6']])}</div>
+ <div class="card"><h3>Sales by channel (% of sales)</h3>${donut([['Cash',31,'#0F172A'],['QR / Transfer',38,'#10B981'],['Card (EDC)',14,'#0EA5E9'],['Grab',9,'#22C55E'],['LINE MAN',5,'#84CC16'],['ShopeeFood',3,'#F97316']])}</div></div>`;
+P.salesdash=()=>lead('<b>Sales</b> — daily sales trend, POS vs invoices, by branch and channel.')+
+ `<div class="card"><div class="bar">${sel(['Oct 2026','Sep 2026'])}${sel(['All branches',...BR.map(b=>b.name)])}${sel(['All channels','Cash','QR','Card','Grab','LINE MAN','ShopeeFood'])}</div>${lineChart([sales,ivx],days.map(String),['#10B981','#0F172A'])}
+ <div class="small muted">● POS sales &nbsp; ● Invoiced (IVxGL)</div></div>
+ <div class="card"><h3>Top branches</h3>${table([{t:'Branch'},{t:'Area'},{t:'POS',n:1},{t:'Invoiced',n:1},{t:'Diff',n:1}],BR.slice(0,8).map(b=>{const v=rint(800,2400)*1000,df=R()<.25?rint(1,9)*10:0;return[b.code+' · '+b.name,b.area,f2(v),f2(v-df),df?`<span style="color:#B91C1C">${f2(-df)}</span>`:'0.00']}))}</div>`;
+P.salesrec=()=>lead('<b>Sale Report</b> — save daily sales snapshots by branch so later uploads can be compared, reverted or audited.')+
+ `<div class="card"><div class="bar">${B('Save snapshot','pri')}${B('Revert batch')}${search()}</div>${table([{t:'Batch'},{t:'Saved by'},{t:'Period'},{t:'Branches',n:1},{t:'New rows',n:1},{t:'Replaced',n:1}],
+ [6,5,4,3,2,1].map(i=>['#'+i,pick(['user2','Admin','user3']),`2026-${String(5+i).padStart(2,'0')}-01 → ${String(5+i).padStart(2,'0')}-30`,rint(150,178),f0(rint(4000,5400)),rint(0,40)]))}</div>`;
+P.void=()=>lead('<b>Void</b> — imports POS void/cancel reports, flags duplicates and summarises by branch, cashier and reason.')+
+ kpis([['Void bills (Oct)','582'],['Void amount','46,210.00'],['Possible duplicates','7','same bill, same amount','#B45309'],['Top reason','Wrong item']])+
+ `<div class="card"><div class="bar">${search('Search bill / branch')}${sel(['All reasons','Wrong item','Customer cancelled','Discount not applied'])}</div>${table([{t:'Date'},{t:'Time'},{t:'Branch'},{t:'Bill no.',m:1},{t:'By'},{t:'Reason'},{t:'Amount',n:1},{t:'Dup'}],
+ Array.from({length:12},(_,i)=>{const b=pick(BR);return[d(rint(1,31)),`${rint(8,20)}:${String(rint(0,59)).padStart(2,'0')}`,b.code,`${rint(10,99)}-6100${rint(10000,99999)}`,'Cashier',pick(['Wrong item','Customer cancelled','Discount not applied']),f2(rint(55,420)),i%5===2?chip('Duplicate','c-warn'):''] }))}</div>`;
+P.upload=()=>lead('<b>Upload & Reconcile</b> — drop the month\'s source files; the system detects each file type and runs reconciliation.')+
+ `<div class="card"><div class="drop"><b>Drag & drop files here</b><br>Bank statement · IVxGL · POS Payment · Grab · LINE MAN · ShopeeFood · Voucher<br><br>${B('Choose files','pri')}</div></div>
+ <div class="card"><h3>Detected files</h3>${table([{t:'File'},{t:'Detected as'},{t:'Period'},{t:'Rows',n:1},{t:'Status'}],[
+ ['statement_oct.xlsx','Bank statement','01–31 Oct','13,611',chip('Ready','c-ok')],['ivxgl_oct.xlsx','IVxGL (GL)','01–31 Oct','4,510',chip('Ready','c-ok')],['pos_payment_oct.xlsx','POS Payment','01–31 Oct','5,402',chip('Ready','c-ok')],
+ ['grab_oct.csv','Grab','01–31 Oct','28,940',chip('Ready','c-ok')],['lineman_oct.xlsx','LINE MAN','01–31 Oct','9,118',chip('Ready','c-ok')],['shopee_oct.xlsx','ShopeeFood','01–31 Oct','—',chip('Missing','c-warn')]])}
+ <div class="bar" style="margin-top:12px">${B('Run reconciliation','pri')}<span class="muted small">Takes ~1 minute · result appears in Results</span></div></div>`;
+P.ivxgl=()=>lead('<b>IVxGL vs POS</b> — compares tax invoices posted to GL with POS payments per branch, per day, per payment type.')+
+ kpis([['Branch-days','5,402'],['Matched','5,311','98.3%','#059669'],['Diff','91','','#B91C1C'],['Missing invoice','14','','#B45309']])+
+ `<div class="card"><div class="bar">${sel(['Oct 2026'])}${sel(['All status','OK','Diff','No IV'])}${search()}${B('Export Excel')}</div>${table([{t:'Date'},{t:'Branch'},{t:'IV no.',m:1},{t:'Cash',n:1},{t:'Transfer/QR',n:1},{t:'Card',n:1},{t:'POS total',n:1},{t:'IV total',n:1},{t:'Diff',n:1},{t:'Status'}],
+ Array.from({length:14},(_,i)=>{const b=pick(BR);const c=rint(30,90)*100,t=rint(60,200)*100,k=rint(0,50)*100,s=c+t+k,df=i%5===3?rint(1,20)*10:0;const st=i%7===6?'No IV':df?'Diff':'OK';
+ return[d(rint(1,31)),b.code,st==='No IV'?'—':'IV2610'+String(rint(1000,9999)),f2(c),f2(t),f2(k),f2(s),st==='No IV'?'0.00':f2(s-df),df?f2(-df):'0.00',chip(st,ST[st])]}))}</div>`;
+P.recon=()=>lead('<b>Results</b> — output of the last reconciliation run, grouped by source with drill-down.')+
+ `<div class="card">${tabs('rt',['Summary','By branch','Exceptions'],i=>i===0?table([{t:'Source'},{t:'Records',n:1},{t:'Matched',n:1},{t:'Diff',n:1},{t:'Match %',n:1}],[['Bank statement','13,611','13,014','597','95.6%'],['IVxGL vs POS','5,402','5,311','91','98.3%'],['Grab','28,940','28,902','38','99.9%'],['LINE MAN','9,118','9,096','22','99.8%'],['Voucher','1,204','1,190','14','98.8%']])
+ :i===1?table([{t:'Branch'},{t:'Bank OK',n:1},{t:'Diff',n:1},{t:'Amount diff',n:1}],BR.map(b=>[b.code+' · '+b.name,rint(90,130),rint(0,6),f2(rint(0,30)*10)]))
+ :table([{t:'Type'},{t:'Branch'},{t:'Date'},{t:'Detail'},{t:'Amount',n:1}],Array.from({length:8},()=>{const b=pick(BR);return[chip(pick(['Diff','Unknown branch','No IV']),'c-warn'),b.code,d(rint(1,31)),pick(['Cash deposit short','Transfer without reference','Invoice not found']),f2(rint(1,500)*10)]})))}</div>`;
+P.posstmt=()=>lead('<b>POS vs Statement</b> — day-by-day cash & transfer totals from POS against actual bank deposits.')+
+ `<div class="card"><div class="bar">${sel(BR.map(b=>b.code+' · '+b.name))}${sel(['Oct 2026'])}</div>${table([{t:'Sale date'},{t:'POS cash',n:1},{t:'Deposited',n:1},{t:'Deposit date'},{t:'POS transfer',n:1},{t:'Received',n:1},{t:'Diff',n:1}],
+ Array.from({length:12},(_,i)=>{const c=rint(20,60)*100,t=rint(50,150)*100,df=i===4?-200:0;return[d(i+1),f2(c),f2(c+df),d(i+2),f2(t),f2(t),df?`<span style="color:#B91C1C">${f2(df)}</span>`:'0.00']}))}</div>`;
+P.bankstmt=()=>{const rows=Array.from({length:18},(_,i)=>{const b=pick(BR);const st=pick(['OK','OK','OK','OK','OK','OK','Diff','Select IV','Unknown branch','Prior month','Waiting platform']);
+ const kind=pick(['QR (KBank)','Cash deposit','Grab payout','LINE MAN payout','Card settlement','Transfer']);const amt=rint(500,90000)+rint(0,99)/100;
+ return[d(rint(1,31)),`${String(rint(0,23)).padStart(2,'0')}:${String(rint(0,59)).padStart(2,'0')}`,kind,st==='Unknown branch'?'—':b.code,st==='OK'||st==='Diff'?'IV2610'+rint(1000,9999):'—',f2(amt),st==='Diff'?`<span style="color:#B91C1C">${f2(-rint(1,50)*10)}</span>`:'',chip(st,ST[st]),st==='OK'||st==='Diff'?pick(['auto_kb','auto_cash','auto_pay']):'']});
+ return lead('<b>Bank Statement</b> — every deposit is auto-matched to a branch and invoice by QR account, cash channel or payout reference. Exceptions get a status and a reason.')+
+ kpis([['Lines (Oct)','13,611'],['Auto-matched','13,014','95.6%','#059669'],['Diff','82','','#B91C1C'],['Select IV','42','several candidates','#6D28D9'],['Unknown branch','58','','#B45309']])+
+ `<div class="card"><div class="bar">${sel(['Oct 2026','Sep 2026'])}${sel(['All status','OK','Diff','Select IV','Unknown branch','Prior month','Waiting platform'])}${search('Search amount / ref / branch')}${B('Re-match')}${B('Export Excel')}</div>
+ ${table([{t:'Date'},{t:'Time'},{t:'Channel'},{t:'Branch'},{t:'Invoice',m:1},{t:'Deposit',n:1},{t:'Diff',n:1},{t:'Status'},{t:'Method',m:1}],rows,520)}</div>`};
+P.bank=()=>lead('<b>Bank Recon</b> — month-end summary: book balance vs bank balance with reconciling items.')+
+ `<div class="grid2"><div class="card"><h3>Reconciliation · 31 Oct 2026</h3>${table([{t:'Item'},{t:'Amount',n:1}],[['Balance per bank','8,412,309.55'],['Add: deposits in transit','182,400.00'],['Less: platform payouts not yet received','(96,310.20)'],['Less: bank fees not booked','(1,240.00)'],['<b>Adjusted balance</b>','<b>8,497,159.35</b>'],['Balance per GL','8,497,159.35'],['<b>Difference</b>','<b style="color:#059669">0.00</b>']])}</div>
+ <div class="card"><h3>Deposits by channel</h3>${barChart([31,38,14,9,5,3],['Cash','QR','Card','Grab','LINE MAN','Shopee'])}</div></div>`;
+P.voucher=()=>lead('<b>Voucher</b> — matches redeemed partner vouchers (POS) with partner settlement files.')+
+ `<div class="card"><div class="bar">${sel(['Oct 2026'])}${sel(['All partners','Partner A','Partner B','Partner C'])}${B('Export Excel')}</div>${table([{t:'Partner'},{t:'Voucher'},{t:'Redeemed (POS)',n:1},{t:'Partner file',n:1},{t:'Amount',n:1},{t:'Status'}],
+ [['Partner A','Discount 50 THB',412,412,'20,600.00',chip('OK','c-ok')],['Partner B','Free drink',188,186,'11,160.00',chip('Diff','c-diff')],['Partner C','Discount 30 THB',604,604,'18,120.00',chip('OK','c-ok')],['Partner D','Gift card',73,73,'14,600.00',chip('OK','c-ok')]])}</div>`;
+const plat=(name,col)=>()=>lead(`<b>${name}</b> — imports ${name} order & payout reports, splits sales / commission (GP) / adjustments per branch, and matches each payout to the bank.`)+
+ kpis([['Orders (Oct)',f0(rint(9000,29000))],['Gross sales',f2(rint(2000,6000)*1000)],['Commission (GP)',f2(rint(300,900)*1000)],['Payouts matched','99.8%','','#059669']])+
+ `<div class="card"><div class="bar">${sel(['Oct 2026'])}${search()}${B('Upload report','pri')}${B('Journal entry')}${B('Export Excel')}</div>${table([{t:'Sale date'},{t:'Branch'},{t:'Orders',n:1},{t:'Sales',n:1},{t:'GP',n:1},{t:'Adjust',n:1},{t:'Net payout',n:1},{t:'Bank date'},{t:'Status'}],
+ Array.from({length:12},(_,i)=>{const b=pick(BR),s=rint(4000,22000),g=Math.round(s*.3*100)/100,a=i%6===4?-rint(1,9)*10:0;const st=i===9?'Waiting platform':a?'Diff':'OK';return[d(rint(1,31)),b.code,rint(20,140),f2(s),f2(-g),f2(a),f2(s-g+a),st==='Waiting platform'?'—':d(rint(2,31)),chip(st,ST[st])]}))}</div>`;
+P.grab=plat('Grab');P.lineman=plat('LINE MAN');P.shopee=plat('ShopeeFood');
+P.slipocr=()=>lead('<b>Slip OCR</b> — reads transfer-slip images (bank, amount, date, reference) and checks them against bank lines to catch fake or duplicate slips.')+
+ kpis([['Slips read','159,701'],['Matched to bank','98.9%','','#059669'],['Duplicates','23','same ref used twice','#B91C1C'],['Not found','41','','#B45309']])+
+ `<div class="card"><div class="bar">${B('Upload slips','pri')}${search()}</div><div class="grid3">${Array.from({length:6},(_,i)=>{const st=['OK','OK','Duplicate','OK','Not found','OK'][i];return`<div class="slip"><div class="t" style="display:flex;justify-content:space-between"><b>${pick(['KBank','SCB','Krungthai','Bangkok Bank'])}</b>${chip(st,st==='OK'?'c-ok':st==='Duplicate'?'c-diff':'c-warn')}</div>
+ <div class="amt">${f2(rint(60,2400))}</div><div class="muted">${d(rint(1,31))} ${rint(8,21)}:${rint(10,59)} · Ref ${'0'.repeat(4)}${rint(100000,999999)}</div><div class="muted">To: Store ${rint(101,112)}</div></div>`}).join('')}</div></div>`;
+P.siamcoin=()=>lead('<b>Siam Coin</b> — coin redemptions from a mall loyalty program: end-of-period transfer, gift card portion and WHT.')+
+ `<div class="card">${table([{t:'Period'},{t:'Redeemed',n:1},{t:'Gift card',n:1},{t:'Fee',n:1},{t:'WHT 3%',n:1},{t:'Transfer',n:1},{t:'Bank'},{t:'Status'}],
+ ['Jul','Aug','Sep','Oct'].map((m,i)=>{const r=rint(40,90)*1000,g=rint(2,8)*1000,f=Math.round(r*.05),w=Math.round(f*.03*100)/100;return[m+' 2026',f2(r),f2(g),f2(-f),f2(w),f2(r-g-f+w),d(rint(5,15)),chip(i===3?'Waiting platform':'OK',i===3?'c-info':'c-ok')]}))}</div>`;
+P.reports=()=>lead('<b>Reports & Export</b> — every report runs in the background; finished files appear in the bell and can be emailed directly.')+
+ `<div class="card"><div class="bar">${sel(['Oct 2026'])}${B('Email settings')}</div>${table([{t:'Report'},{t:'Description'},{t:''}],[
+ ['Bank Statement (matched)','All lines with branch, invoice and status'],['IVxGL vs POS','Branch-day comparison'],['Grab / LINE MAN / Shopee recon','Per platform, with GP and adjustments'],['Journal entries','Ready-to-post JV per platform'],['Voucher recon','By partner'],['Audit pack','All sources + file hashes for auditors']].map(r=>[`<b>${r[0]}</b>`,`<span class="muted">${r[1]}</span>`,B('Excel','sm')+' '+B('Email','sm')]))}</div>`;
+P.salerpt=()=>lead('<b>Branch Sale Report</b> — splits monthly / daily sales into one file per branch and emails each landlord or branch group automatically.')+
+ `<div class="card"><div class="bar">${sel(['Oct 2026'])}${sel(['Monthly','Daily'])}${B('Send test')}${B('Send all','pri')}</div>${table([{t:''},{t:'Branch'},{t:'Group'},{t:'To'},{t:'File'},{t:'Last sent'}],
+ BR.slice(0,10).map((b,i)=>[`<input type="checkbox" ${i%4?'checked':''}>`,b.code+' · '+b.name,b.mall?'Mall group A':'Direct','landlord@example.com',`Sale Report ${b.name} 10-2026.xlsx`,i%3?d(rint(1,5)).replace('10','11'):'—']))}</div>`;
+P.vcmail=()=>lead('<b>Voucher (email)</b> — sends monthly voucher-redemption summaries to each partner to confirm before invoicing.')+
+ `<div class="card"><div class="bar">${sel(['Oct 2026'])}${B('Preview')}${B('Send selected','pri')}</div>${table([{t:''},{t:'Campaign'},{t:'Partner'},{t:'Redeemed',n:1},{t:'Amount',n:1},{t:'Status'}],
+ [['Campaign A','Partner A',412,'20,600.00'],['Campaign B','Partner B',188,'11,160.00'],['Campaign C','Partner C',604,'18,120.00']].map((r,i)=>['<input type="checkbox" checked>',...r,chip(i?'Not sent':'Sent','c-'+(i?'grey':'ok'))]))}</div>`;
+P.kcredeem=()=>lead('<b>Krungsri Redeem</b> — pulls credit-card point-redemption advices from the mailbox (zip + password), parses slips and matches transfers.')+
+ kpis([['Advice files','208'],['Slips (Oct)','9,840'],['Matched','100%','','#059669']])+
+ `<div class="card"><div class="bar">${B('Fetch from mailbox','pri')}${sel(['Oct 2026'])}</div>${table([{t:'Sale date'},{t:'Voucher no.',m:1},{t:'Slips',n:1},{t:'Amount',n:1},{t:'Transfer date'},{t:'Status'}],
+ Array.from({length:8},(_,i)=>{const n=rint(300,520);return[d(i+1),'V2610'+rint(10000000,99999999),n,f2(n*60),d(i+2),chip('OK','c-ok')]}))}</div>`;
+P.mallbill=()=>lead('<b>Mall Billing</b> — upload the mall\'s sales confirmation PDF → the system calculates GP / rent / minimum guarantee / WHT per contract and produces 3 PDFs ready to email.')+
+ `<div class="bar">${sel(['Oct 2026','Sep 2026'])}<span class="muted small">5 of 7 confirmed</span></div><div class="grid3">${[['Store 101','A · GP tiers',873450,'confirmed'],['Store 104','B · GP + rent',512300,'confirmed'],['Store 107','C · max(GP, minimum)',1182000,'confirmed'],['Store 110','A · GP tiers',433900,'draft'],['Store 112','D · fixed rent',0,'waiting']].map(m=>
+ `<div class="mcard"><div class="t"><b>${m[0]}</b>${chip(m[3],m[3]==='confirmed'?'c-ok':m[3]==='draft'?'c-warn':'c-grey')}</div><div class="muted small">Type ${m[1]}</div>
+ <div style="margin-top:8px;font-size:18px;font-weight:700">${m[2]?f2(m[2]):'—'}</div><div class="muted small">Sales incl. VAT</div><div class="prog"><i style="width:${m[3]==='confirmed'?100:m[3]==='draft'?60:15}%"></i></div>
+ <div class="bar" style="margin:10px 0 0">${B('Open','sm')}${m[3]==='confirmed'?B('PDF','sm')+B('Email','sm'):B('Upload PDF','sm')}</div></div>`).join('')}</div>
+ <div class="card" style="margin-top:16px"><h3>Store 107 · calculation</h3>${table([{t:'Line'},{t:'Base',n:1},{t:'Rate',n:1},{t:'Amount',n:1}],[['Sales excl. VAT','1,104,672.90','',''],['GP (tiered)','1,104,672.90','15% / 18%','176,700.00'],['Minimum guarantee','','','186,000.00'],['<b>Charge = max(GP, minimum)</b>','','','<b>186,000.00</b>'],['Rent (no VAT)','','','12,000.00'],['WHT 5% on rent','','','(600.00)'],['<b>Net to receive</b>','','','<b>984,450.00</b>']])}</div>`;
+P.doc_invoice=()=>lead('<b>Receipt PDF → Excel</b> — reads platform receipt / tax-invoice PDFs (Shopee, Grab, LINE MAN …) into one Excel table.')+
+ `<div class="card"><div class="drop"><b>Drop receipt PDFs</b><br>Multiple files at once · layout auto-detected</div></div><div class="card">${table([{t:'File'},{t:'Platform'},{t:'Doc no.',m:1},{t:'Date'},{t:'Before VAT',n:1},{t:'VAT',n:1},{t:'Total',n:1}],
+ Array.from({length:6},(_,i)=>{const t=rint(1000,30000);return[`receipt_${i+1}.pdf`,pick(['Shopee','Grab','LINE MAN']),'RC'+rint(100000,999999),d(rint(1,31)),f2(t/1.07),f2(t-t/1.07),f2(t)]}))}</div>`;
+P.doc_wht=()=>lead('<b>WHT</b> — builds the withholding-tax cover sheet (3%, PND.53) from platform receipts, with e-signatures of preparer and approver.')+
+ `<div class="grid2"><div class="card">${table([{t:'Platform'},{t:'Docs',n:1},{t:'Base',n:1},{t:'WHT 3%',n:1}],[['Shopee',12,'84,200.00','2,526.00'],['Grab',31,'512,880.00','15,386.40'],['LINE MAN',18,'166,400.00','4,992.00'],['<b>Total</b>','<b>61</b>','<b>763,480.00</b>','<b>22,904.40</b>']])}
+ <div class="bar" style="margin-top:12px">${sel(['Sign as: Demo Admin','Sign as: Demo User 2'])}${B('Download Excel','pri')}</div></div>
+ <div class="paper"><h4>WHT Cover Sheet · Oct 2026</h4><div class="muted" style="text-align:center;margin-bottom:12px">Demo Coffee Co., Ltd.</div>${table([{t:'Platform'},{t:'WHT',n:1}],[['Shopee','2,526.00'],['Grab','15,386.40'],['LINE MAN','4,992.00']])}
+ <div class="grid2" style="margin-top:18px;text-align:center"><div><div class="sig">D. Admin</div><div class="small">Prepared by</div></div><div><div class="sig"></div><div class="small">Approved by</div></div></div></div></div>`;
+P.doc_sales=()=>lead('<b>Sales Tax Cover</b> — document-filing cover for the monthly sales-tax report, grouped by branch and document range.')+
+ `<div class="card"><div class="drop"><b>Drop the sales-tax report (Excel)</b></div></div><div class="card">${table([{t:'Branch'},{t:'From doc',m:1},{t:'To doc',m:1},{t:'Docs',n:1},{t:'Before VAT',n:1},{t:'VAT',n:1}],
+ BR.slice(0,8).map(b=>{const v=rint(400,2000)*1000;return[b.code,'IV2610'+rint(1000,4999),'IV2610'+rint(5000,9999),rint(28,31),f2(v/1.07),f2(v-v/1.07)]}))}<div class="bar" style="margin-top:12px">${B('Download cover','pri')}</div></div>`;
+P.doc_detailgl=()=>lead('<b>Supporting Detail</b> — breaks a GL balance into supporting line items for auditors (ประกอบงบ).')+
+ `<div class="card"><div class="bar">${sel(['1201002 · Trade receivable – Card','1201010 · Trade receivable – Grab','1201018 · Trade receivable – Card points'])}${sel(['31 Oct 2026'])}${B('Export Excel')}</div>${table([{t:'Date'},{t:'Doc',m:1},{t:'Branch'},{t:'Description'},{t:'Amount',n:1}],
+ Array.from({length:10},()=>{const b=pick(BR);return[d(rint(25,31)),'IV2610'+rint(1000,9999),b.code,'Settlement not yet received',f2(rint(500,20000))]}))}</div>`;
+P.doc_pdf=()=>lead('<b>PDF Tools</b> — merge, split, rotate, compress and password-protect PDFs without leaving the system.')+
+ `<div class="grid3">${['Merge','Split','Rotate','Compress','Add password','Remove pages'].map(t=>`<div class="mcard" style="cursor:pointer" onclick="demo()"><b>${t}</b><div class="muted small">Drop PDF files</div></div>`).join('')}</div>`;
+P.doc_templates=()=>lead('<b>Templates</b> — reusable email and document templates with placeholders like {branch}, {month}.')+
+ `<div class="card">${table([{t:'Name'},{t:'Used by'},{t:'Placeholders',m:1},{t:''}],[['Sale report email','Branch Sale Report','{branch} {month}'],['Voucher confirmation','Voucher email','{campaign} {month_th}'],['Mall billing email','Mall Billing','{store} {month} {wht}']].map(r=>[...r,B('Edit','sm')]))}</div>`;
+P.mailfile=()=>lead('<b>Mail Attachments</b> — rules that download attachments from the mailbox (IMAP) by sender / subject, unzip and file them automatically.')+
+ `<div class="card"><div class="bar">${B('New rule','pri')}${B('Run now')}</div>${table([{t:'Rule'},{t:'From'},{t:'Subject contains'},{t:'Save to'},{t:'Last run'},{t:'Files',n:1}],
+ [['Grab daily','noreply@example.com','Settlement','Grab/','18/11 08:00',31],['LINE MAN weekly','report@example.com','Payout','Lineman/','17/11 08:00',4],['Card points','bank@example.com','Disbursement','Krungsri/','18/11 08:00',2]])}</div>`;
+P.branch=()=>lead('<b>Branch</b> — master list of branches with company, deposit group, platform store names, opening date and closed days.')+
+ `<div class="card"><div class="bar">${search()}${B('Add branch','pri')}${B('Import Excel')}</div>${table([{t:'Code',m:1},{t:'Name'},{t:'Area'},{t:'Grab store'},{t:'LINE MAN store'},{t:'Opened'},{t:'Active'}],
+ BR.map((b,i)=>[b.code,b.name,b.area,'Demo Coffee - '+b.name,b.name,`20${rint(19,25)}-0${rint(1,9)}-1${rint(0,9)}`,`<span class="tog ${i===11?'':'on'}" onclick="this.classList.toggle('on')"></span>`]))}</div>`;
+P.typs=()=>lead('<b>Typs Mapping</b> — text patterns in bank descriptions → branch / channel, used by auto-matching.')+
+ `<div class="card"><div class="bar">${search()}${B('Add rule','pri')}</div>${table([{t:'Pattern',m:1},{t:'Match'},{t:'Channel'},{t:'Branch'},{t:'Priority',n:1}],
+ Array.from({length:10},()=>{const b=pick(BR);return['CASH REF '+rint(100,999)+'*',pick(['exact','contains','regex']),pick(['Cash deposit','QR','Transfer']),b.code,rint(10,90)]}))}</div>`;
+P.ivxgl_map=()=>lead('<b>IV × GL mapping</b> — which GL account maps to which POS payment column.')+
+ `<div class="card">${table([{t:'GL code',m:1},{t:'GL name'},{t:'POS column'},{t:'Active'}],[['1201002','Trade receivable – Card (EDC)','CARD'],['1201005','Trade receivable – QR','QR'],['1201010','Trade receivable – Grab','GRAB'],['1201011','Trade receivable – LINE MAN','LINEMAN'],['1201012','Trade receivable – ShopeeFood','SHOPEE'],['1201020','Voucher – Partner A','VC_A']].map(r=>[...r,'<span class="tog on"></span>']))}</div>`;
+P.account_code=()=>lead('<b>Account Code</b> — GL codes used when generating journal entries per platform.')+
+ `<div class="card">${table([{t:'Platform'},{t:'Line'},{t:'Code',m:1},{t:'Name'}],[['Grab','Bank','1012000','Savings account (receipts)'],['Grab','Commission','5301010','Platform commission'],['Grab','Receivable','1201010','Trade receivable – Grab'],['LINE MAN','Bank','1012000','Savings account (receipts)'],['LINE MAN','Commission','5301011','Platform commission'],['Shopee','Receivable','1201012','Trade receivable – ShopeeFood']])}</div>`;
+P.salerpt_master=()=>lead('<b>Sales Report Emails</b> — recipient groups, subject and body templates for the branch sale report.')+
+ `<div class="card">${table([{t:'Group'},{t:'To'},{t:'Cc'},{t:'Branches',n:1},{t:'Subject'}],[['Mall group A','finance@example.com','ar@example.com',9,'Sale Report {branch} {month}'],['Mall group B','billing@example.com','',6,'Sales {month} · {branch}'],['Direct landlords','(per branch)','',11,'Monthly sales {branch}']])}</div>`;
+P.users=()=>lead('<b>Users</b> — accounts, roles, active / disabled, and each user\'s e-signature for documents.')+
+ `<div class="card"><div class="bar">${B('Add user','pri')}</div>${table([{t:'Username'},{t:'Name'},{t:'Role'},{t:'Signature'},{t:'Last login'},{t:'Active'}],
+ [['Admin','Demo Admin','admin','<span class="sig" style="height:24px;font-size:15px;border:0">D. Admin</span>','18/11/2026 09:46'],['user2','Demo User 2','accountant','<span class="sig" style="height:24px;font-size:15px;border:0">U. Two</span>','17/11/2026 16:10'],['user3','Demo User 3','viewer','—','12/11/2026 10:02']].map((r,i)=>[...r,`<span class="tog ${i<2?'on':''}" onclick="this.classList.toggle('on')"></span>`]))}</div>`;
+P.roles=()=>{const mods=['Bank Statement','IVxGL','Grab / LINE MAN / Shopee','Mall Billing','Documents','Master Data','Users','Audit Log'];
+ return lead('<b>Roles</b> — role-based permissions per module (view / edit / export / delete) with per-user overrides.')+
+ `<div class="card">${table([{t:'Module'},...['admin','accountant','viewer'].map(r=>({t:r}))],mods.map((m,i)=>[m,'✔ all',i<6?'✔ view · edit · export':'—',i<4?'✔ view':'—']))}</div>`};
+P.notices=()=>lead('<b>Announcements</b> — post notices to roles; important ones pop up after login and track who has read them.')+
+ `<div class="card"><div class="bar">${B('New announcement','pri')}</div>${table([{t:'Title'},{t:'Level'},{t:'To'},{t:'Popup'},{t:'Period'},{t:'Read',n:1}],[['Month-end close Oct 2026',chip('important','c-diff'),'all','✔','06–13 Nov','3 / 3'],['New Mall Billing module',chip('info','c-info'),'accountant','','17–30 Nov','1 / 2']])}</div>`;
+P.flags=()=>lead('<b>Feature Flags</b> — turn menus on/off or into maintenance mode without redeploying.')+
+ `<div class="card">${table([{t:'Feature'},{t:'Visible'},{t:'Maintenance'},{t:'Note'}],['Slip OCR','Mall Billing','Krungsri Redeem','Mail Attachments','AI assistant','Sales dashboard'].map((f,i)=>[f,`<span class="tog ${i===4?'':'on'}" onclick="this.classList.toggle('on')"></span>`,`<span class="tog" onclick="this.classList.toggle('on')"></span>`,i===4?'<span class="muted">pilot</span>':'']))}</div>`;
+P.audit=()=>lead('<b>Audit Log</b> — who did what and when: logins, uploads, edits, exports, emails, permission changes.')+
+ `<div class="card"><div class="bar">${search()}${sel(['All actions','login','upload','edit','export','email'])}</div>${table([{t:'Time'},{t:'User'},{t:'Action'},{t:'Detail'},{t:'IP',m:1}],
+ Array.from({length:12},(_,i)=>[`2026-11-${String(18-Math.floor(i/3)).padStart(2,'0')} ${rint(8,18)}:${rint(10,59)}`,pick(['Admin','user2','user3']),pick(['login','upload','edit_bank_line','export','mall_confirm','email_sent']),pick(['statement_oct.xlsx','IV2610'+rint(1000,9999)+' → OK','Bank Statement (Oct)','Store 107 · Oct','3 files to mall']),'192.168.1.'+rint(10,60)]))}</div>`;
+P.downloads=()=>lead('<b>Download Log</b> — every exported file: who, when, which report, row count.')+
+ `<div class="card">${table([{t:'Time'},{t:'User'},{t:'Report'},{t:'File'},{t:'Rows',n:1}],Array.from({length:10},()=>[`2026-11-${rint(10,18)} ${rint(8,18)}:${rint(10,59)}`,pick(['Admin','user2']),pick(['Bank Statement','IVxGL vs POS','Grab recon','Audit pack']),'export_'+rint(1000,9999)+'.xlsx',f0(rint(800,14000))]))}</div>`;
+P.setting=()=>lead('<b>Settings</b> — company info for documents, email (SMTP), mailbox (IMAP), backup and security options.')+
+ `<div class="grid2"><div class="card"><h3>Company (for documents)</h3>${[['Name','Demo Coffee Co., Ltd.'],['Tax ID','0000000000000'],['Address','99 Demo Tower, Bangkok'],['Document font','Angsana New · 17']].map(r=>`<div class="row"><span class="l">${r[0]}</span><input class="inp" value="${r[1]}"></div>`).join('')}</div>
+ <div class="card"><h3>Email & security</h3><div class="row"><span class="l">Sender</span><input class="inp" value="reports@example.com"></div><div class="row"><span class="l">Authorization code</span><input class="inp" type="password" placeholder="kept in memory 2 hours only"></div>
+ <div class="row"><span class="l">Status</span><span>${chip('● ready until 14:35','c-ok')}</span></div><div class="row"><span class="l">Backup</span><span>${chip('Weekly · Fri 19:00 · AES-256','c-info')}</span></div></div></div>`;
+
+/* ───────── nav ───────── */
+const I={home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',chk:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',db:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+sh:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',dot:'<circle cx="12" cy="12" r="3"/>'};
+const NAV=[['Home','home',[['Home','home']]],['Overview','grid',[['Dashboard','dashboard'],['Sales','salesdash'],['Sale Report','salesrec'],['Void','void']]],
+['Upload','up',[['Upload & Reconcile','upload']]],['Reconciliation','chk',[['IVxGL vs POS','ivxgl'],['Results','recon'],['POS vs Statement','posstmt'],['Bank Statement','bankstmt'],['Bank Recon','bank'],['Voucher','voucher'],['Grab','grab'],['LINE MAN','lineman'],['ShopeeFood','shopee'],['Slip OCR','slipocr'],['Siam Coin','siamcoin']]],
+['Reports','doc',[['Reports & Export','reports'],['Branch Sale Report','salerpt'],['Voucher Email','vcmail'],['Krungsri Redeem','kcredeem'],['Mall Billing','mallbill']]],
+['Documents','doc',[['Receipt PDF → Excel','doc_invoice'],['WHT','doc_wht'],['Sales Tax Cover','doc_sales'],['Supporting Detail','doc_detailgl'],['PDF Tools','doc_pdf'],['Templates','doc_templates'],['Mail Attachments','mailfile']]],
+['Master Data','db',[['Branch','branch'],['Typs Mapping','typs'],['IV × GL Mapping','ivxgl_map'],['Account Code','account_code'],['Sales Report Emails','salerpt_master']]],
+['Admin','sh',[['Users','users'],['Roles','roles'],['Announcements','notices'],['Feature Flags','flags'],['Audit Log','audit'],['Download Log','downloads'],['Settings','setting']]]];
+const svg=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
+document.getElementById('nav').innerHTML=NAV.map(([g,ic,items])=>g==='Home'?`<div class="it" data-v="home" onclick="go('home')">${svg(I.home)}Home</div>`:
+ `<div class="grp"><div class="gh" onclick="this.parentNode.classList.toggle('closed')">${svg(I[ic])}${g}<svg class="chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="items">${items.map(([t,v])=>`<div class="it" data-v="${v}" onclick="go('${v}')">${svg(I.dot)}${t}</div>`).join('')}</div></div>`).join('');
+const NAME={},GROUP={};NAV.forEach(([g,,items])=>items.forEach(([t,v])=>{NAME[v]=t;GROUP[v]=g}));
+function go(v){if(!P[v])v='home';seed=7+v.length*31;document.getElementById('main').innerHTML=P[v]();document.getElementById('ttl').textContent=NAME[v];
+ document.getElementById('crumb').textContent=GROUP[v]==='Home'?'Overview of the system':GROUP[v]+' / '+NAME[v];
+ document.querySelectorAll('.it').forEach(e=>e.classList.toggle('on',e.dataset.v===v));if(location.hash!=='#'+v)history.replaceState(null,'','#'+v);side(false);window.scrollTo(0,0)}
+function side(o){document.getElementById('side').classList.toggle('open',o);document.getElementById('dbg').classList.toggle('open',o)}
+let tt;function demo(m){const t=document.getElementById('toast');t.textContent=m||'Demo only — this button works in the real system';t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1800)}
+go((location.hash||'#home').slice(1));
+</script>
+</body>
+</html>
